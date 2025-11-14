@@ -52,27 +52,51 @@ Here is an example:
 
 ```lua
 require 'mdeval'.setup({
-  -- Don't ask before executing code blocks
-  require_confirmation=false,
-  -- Change code blocks evaluation options.
-  eval_options = {
-    -- Set custom configuration for C++
-    cpp = {
-      command = {"clang++", "-std=c++20", "-O0"},
-      default_header = [[
-    #include <iostream>
-    #include <vector>
-    using namespace std;
-      ]]
-    },
-    -- Add new configuration for Racket
-    racket = {
-      command = {"racket"},        -- Command to run interpreter
-      language_code = "racket",    -- Markdown language code
-      exec_type = "interpreted",   -- compiled or interpreted
-      extension = "rkt",           -- File extension for temporary files
-    },
-  },
+        -- Don't ask before executing code blocks
+        require_confirmation=false,
+        -- Always output multiline code block
+        always_multiline = true,
+        -- Change code blocks evaluation options.
+        eval_options = {
+        -- Set custom configuration for C++ (must define code, type and extension)
+        cpp = {
+        command = {"g++", "-std=c++20", "-O0"},
+        default_header = [[
+            #include <iostream>
+            #include <vector>
+            using namespace std;
+            int main() {
+        ]],
+        default_footer = [[
+                return 0;
+            }
+        ]],
+        language_code = "cpp",
+        exec_type = "compiled",
+        extension = "cpp",
+        },
+        d = {
+            command = {"ldc2"},
+            language_code = "d",
+            exec_type = "compiled",
+            extension = "d",
+            output_flag = "-of",
+            default_header = [[
+                import std;
+                void main() {
+            ]],
+            default_footer = [[
+                }
+            ]],
+        },
+        -- Add new configuration for Racket
+            racket = {
+                command = {"racket"},        -- Command to run interpreter
+                language_code = "racket",    -- Markdown language code
+                exec_type = "interpreted",   -- compiled or interpreted
+                extension = "rkt",           -- File extension for temporary files
+            },
+        },
 })
 ```
 
@@ -82,7 +106,7 @@ You can disable this feature setting `require_confirmation` option to `false`, o
 Probably, it will be a good idea to define keybindings to call `:MdEval`. This plugin doesn't add default keybindings, but you can do this in your configuration file, for example:
 
 ```lua
-vim.api.nvim_set_keymap('n', '<leader>c',
+vim.api.nvim_set_keymap('n', '<leader>ce',
                         "<cmd>lua require 'mdeval'.eval_code_block()<CR>",
                         {silent = true, noremap = true})
 ```

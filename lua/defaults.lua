@@ -10,6 +10,7 @@ lang_conf["markdown.pandoc"] = { "```", "```" }
 M.lang_conf = lang_conf
 
 M.require_confirmation = true
+M.always_multiline = false
 M.allowed_file_types = {}
 M.exec_timeout = -1
 M.tmp_build_dir = "/tmp/mdeval/"
@@ -23,13 +24,13 @@ M.eval_options = {
     extension = "sh",
   },
   c = {
-    command = { "clang" },
+    command = { "gcc" },
     language_code = "c",
     exec_type = "compiled",
     extension = "c",
   },
   cpp = {
-    command = { "clang++" },
+    command = { "g++" },
     language_code = "cpp",
     exec_type = "compiled",
     extension = "cpp",

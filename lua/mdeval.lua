@@ -59,7 +59,7 @@ local function get_timeout_command(cmd, timeout)
   )
 end
 
-local function run_compiler(command, extension, temp_filename, code, timeout)
+local function run_compiler(command, extension, output_flag, temp_filename, code, timeout)
   assert(command ~= nil)
   local filepath = string.format("%s/%s", M.opts.tmp_build_dir, temp_filename)
   local src_filepath = string.format("%s.%s", filepath, extension)
@@ -77,9 +77,11 @@ local function run_compiler(command, extension, temp_filename, code, timeout)
   local handle = io.popen(
     get_command(
       string.format(
-        "%s %s -o %s 2>&1; echo $?",
+        -- "%s %s -o %s 2>&1; echo $?",
+        "%s %s %s %s 2>&1; echo $?",
         table.concat(command, " "),
         src_filepath,
+        output_flag,
         a_out_filepath
       )
     )
@@ -210,6 +212,10 @@ local function eval_code(
     code = lang_options.default_header .. "\n" .. code
   end
 
+  if lang_options.output_flag == nil then
+      lang_options.output_flag = "-o"
+  end
+
   if lang_options.exec_type == "argument" then
     return run_argument(lang_options.command, code, timeout)
   end
@@ -219,6 +225,7 @@ local function eval_code(
     return run_compiler(
       lang_options.command,
       lang_options.extension,
+      lang_options.output_flag,
       temp_filename_generator(),
       code,
       timeout
@@ -313,7 +320,7 @@ local function write_output(linenr, out)
     out_table[#out_table + 1] =
       string.format("%s `<no output>`", M.opts.results_label)
   else
-    if #out == 1 then
+    if #out == 1 and not M.opts.always_multiline then
       out_table[#out_table + 1] =
         string.format("%s `%s`", M.opts.results_label, out[1])
     else
